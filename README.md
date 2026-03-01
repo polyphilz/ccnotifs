@@ -4,7 +4,7 @@
 <h1>ccnotifs</h1>
 
 Native macOS notifications for <a href="https://docs.anthropic.com/en/docs/claude-code" target="_blank">Claude Code</a>.
-Know when Claude finishes or needs your input.
+Know when Claude finishes or needs your input. Click notifications to bring into focus the tmux pane that spawned the notification.
 
 <a href="https://www.apple.com/macos/" target="_blank"><img src="https://img.shields.io/badge/macOS-000000?style=flat&logo=apple&logoColor=white" alt="macOS"></a>
 <a href="notify.sh"><img src="https://img.shields.io/badge/Shell_Script-4EAA25?style=flat&logo=gnu-bash&logoColor=white" alt="Shell Script"></a>
@@ -19,7 +19,7 @@ Know when Claude finishes or needs your input.
 ## Features
 
 - **Two notification types** — "Done" when Claude finishes, "Needs Input" when Claude needs approval
-- **Teleport** — Click a notification to teleport back to the right terminal, tmux session, window, and pane — no matter where you are on your computer (requires `terminal-notifier`)
+- **Teleport** — Click a notification to teleport back to the right terminal, tmux session, window, and pane
 - **tmux context** — Shows session name, window number, and window name
 - **Project name** — Displays the current project directory
 - **Suppression** — Skips notifications when you're already viewing the Claude Code session
