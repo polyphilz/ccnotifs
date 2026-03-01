@@ -1,5 +1,7 @@
 <div align="center">
 
+<img src="assets/clawd-shimmer.gif" width="200" alt="Clawd">
+
 # Claude Code Notifier
 
 Native macOS notifications for <a href="https://docs.anthropic.com/en/docs/claude-code" target="_blank">Claude Code</a>.
