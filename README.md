@@ -4,7 +4,8 @@
 <h1>ccnotifs</h1>
 
 Native macOS notifications for <a href="https://docs.anthropic.com/en/docs/claude-code" target="_blank">Claude Code</a>.
-Know when Claude finishes or needs your input. Click notifications to bring into focus the tmux pane that spawned the notification.
+Know when Claude finishes or needs your input. Approve or reject Claude Code's permission prompts directly from a notification,
+OR click the notification to bring into focus the terminal window/tmux pane running the Claude Code process.
 
 <a href="https://www.apple.com/macos/" target="_blank"><img src="https://img.shields.io/badge/macOS-000000?style=flat&logo=apple&logoColor=white" alt="macOS"></a>
 <a href="notify.sh"><img src="https://img.shields.io/badge/Shell_Script-4EAA25?style=flat&logo=gnu-bash&logoColor=white" alt="Shell Script"></a>
@@ -27,12 +28,6 @@ Know when Claude finishes or needs your input. Click notifications to bring into
 - **Suppression** — Skips notifications when you're already viewing the Claude Code session
 - **Custom icon** — Use your own app icon instead of the default Script Editor icon
 - **Sound** — Plays a sound per notification type
-
-```
-Claude Code — Done
-myproject w3 > feature-branch · my-app
-Claude has finished and is awaiting further instructions
-```
 
 ## Quick Start
 
