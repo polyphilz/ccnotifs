@@ -3,13 +3,49 @@
 # Downloads the hook scripts and icon from GitHub and prints the required hooks config.
 #
 # Run directly: curl -fsSL https://raw.githubusercontent.com/polyphilz/ccnotifs/main/install.sh | bash
+# Override the ref with CCNOTIFS_REF=vX.Y.Z or CCNOTIFS_REF=main.
 
 set -euo pipefail
 
-REPO_RAW="https://raw.githubusercontent.com/polyphilz/ccnotifs/main"
+GITHUB_REPO="polyphilz/ccnotifs"
 HOOKS_DIR="$HOME/.claude/hooks"
 
-echo "Installing ccnotifs..."
+normalize_ref() {
+    local ref="$1"
+
+    if [[ "$ref" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+        printf 'v%s' "$ref"
+    else
+        printf '%s' "$ref"
+    fi
+}
+
+resolve_repo_ref() {
+    local latest_url=""
+    local latest_ref=""
+
+    if [ -n "${CCNOTIFS_REF:-}" ]; then
+        normalize_ref "$CCNOTIFS_REF"
+        return 0
+    fi
+
+    latest_url=$(curl -fsSL --connect-timeout 5 --max-time 10 -o /dev/null -w '%{url_effective}' "https://github.com/${GITHUB_REPO}/releases/latest" 2>/dev/null || echo "")
+    latest_ref=$(printf '%s' "$latest_url" | sed -nE 's#.*/tag/([^/?]+).*#\1#p')
+
+    if [ -n "$latest_ref" ]; then
+        printf '%s' "$latest_ref"
+    else
+        printf 'main'
+    fi
+}
+
+REPO_REF="$(resolve_repo_ref)"
+REPO_RAW="https://raw.githubusercontent.com/${GITHUB_REPO}/${REPO_REF}"
+
+echo "Installing ccnotifs from ${REPO_REF}..."
+if [ "$REPO_REF" = "main" ] && [ -z "${CCNOTIFS_REF:-}" ]; then
+    echo "  No GitHub release found yet; falling back to main."
+fi
 
 # --- Download hook files ---
 mkdir -p "$HOOKS_DIR"

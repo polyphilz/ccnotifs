@@ -43,6 +43,11 @@ brew install vjeantet/tap/alerter
 curl -fsSL https://raw.githubusercontent.com/polyphilz/ccnotifs/main/install.sh | bash
 ```
 
+The bootstrap installer resolves the latest GitHub release by default.
+
+- Pin a release: `curl -fsSL https://raw.githubusercontent.com/polyphilz/ccnotifs/main/install.sh | CCNOTIFS_REF=vX.Y.Z bash`
+- Install unreleased `main`: `curl -fsSL https://raw.githubusercontent.com/polyphilz/ccnotifs/main/install.sh | CCNOTIFS_REF=main bash`
+
 The install script:
 1. Downloads `notify.sh`, `stash_command.sh`, and `clawd-mascot-notif-icon.png` into `~/.claude/hooks/`
 2. Prints the hooks config to add to your `settings.json`
@@ -106,10 +111,12 @@ If you prefer not to use `install.sh`:
 **1. Download the script:**
 
 ```bash
+REF="vX.Y.Z" # replace with a real release tag, or use main
+
 mkdir -p ~/.claude/hooks
-curl -fsSL https://raw.githubusercontent.com/polyphilz/ccnotifs/main/notify.sh -o ~/.claude/hooks/notify.sh
-curl -fsSL https://raw.githubusercontent.com/polyphilz/ccnotifs/main/stash_command.sh -o ~/.claude/hooks/stash_command.sh
-curl -fsSL https://raw.githubusercontent.com/polyphilz/ccnotifs/main/clawd-mascot-notif-icon.png -o ~/.claude/hooks/clawd-mascot-notif-icon.png
+curl -fsSL "https://raw.githubusercontent.com/polyphilz/ccnotifs/${REF}/notify.sh" -o ~/.claude/hooks/notify.sh
+curl -fsSL "https://raw.githubusercontent.com/polyphilz/ccnotifs/${REF}/stash_command.sh" -o ~/.claude/hooks/stash_command.sh
+curl -fsSL "https://raw.githubusercontent.com/polyphilz/ccnotifs/${REF}/clawd-mascot-notif-icon.png" -o ~/.claude/hooks/clawd-mascot-notif-icon.png
 chmod +x ~/.claude/hooks/notify.sh ~/.claude/hooks/stash_command.sh
 ```
 
