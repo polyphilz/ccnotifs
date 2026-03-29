@@ -22,7 +22,14 @@ strip_ansi() {
 }
 
 extract_candidate_options() {
-    printf '%s\n' "$1" | strip_ansi | sed -nE 's/^[[:space:]]*[^0-9]*([0-9]+)\.[[:space:]]+(.*)$/\1\t\2/p'
+    # Only extract the last contiguous block of numbered options from the
+    # bottom of the pane snapshot.  This avoids picking up numbered items
+    # from Claude's response text above the permission prompt.
+    printf '%s\n' "$1" | strip_ansi | tail -r | awk '
+        /^[[:space:]]*[^0-9]*[0-9]+\.[[:space:]]+/ { found=1; print; next }
+        /^[[:space:]]*$/ { if (!found) next; else exit }
+        { if (found) exit }
+    ' | tail -r | sed -nE 's/^[[:space:]]*[^0-9]*([0-9]+)\.[[:space:]]+(.*)$/\1\t\2/p'
 }
 
 build_action_choices() {
