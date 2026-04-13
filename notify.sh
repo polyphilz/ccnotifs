@@ -162,6 +162,20 @@ NOTIFY_TYPE="${1:-done}"
 # Read hook JSON from stdin (Claude Code pipes event data)
 INPUT=$(cat)
 
+# --- Claude Code session name (from /rename command) ---
+# Session files in ~/.claude/sessions/ are named by the Claude process PID.
+# Walk up the process tree to find which PID matches a session file.
+SESSION_NAME=""
+_pid=$$
+while [ "$_pid" -gt 1 ] 2>/dev/null; do
+    if [ -f "$HOME/.claude/sessions/${_pid}.json" ]; then
+        SESSION_NAME=$(jq -r '.name // empty' "$HOME/.claude/sessions/${_pid}.json" 2>/dev/null || echo "")
+        break
+    fi
+    _pid=$(ps -o ppid= -p "$_pid" 2>/dev/null | tr -d ' ')
+    [ -z "$_pid" ] && break
+done
+
 # --- Skip notification if user is already viewing this session ---
 if [ -n "${TMUX:-}" ] && [ -n "${TMUX_PANE:-}" ]; then
     SESSION_ATTACHED=$(tmux display-message -t "$TMUX_PANE" -p '#{session_attached}' 2>/dev/null || echo "0")
@@ -278,6 +292,15 @@ elif [ -n "$TMUX_INFO" ]; then
     SUBTITLE="${TMUX_INFO}"
 elif [ -n "$PROJECT" ]; then
     SUBTITLE="${PROJECT}"
+fi
+
+# Append session name to subtitle
+if [ -n "$SESSION_NAME" ]; then
+    if [ -n "$SUBTITLE" ]; then
+        SUBTITLE="${SUBTITLE} · ${SESSION_NAME}"
+    else
+        SUBTITLE="${SESSION_NAME}"
+    fi
 fi
 
 # --- Send notification ---
