@@ -163,18 +163,18 @@ NOTIFY_TYPE="${1:-done}"
 INPUT=$(cat)
 
 # --- Claude Code session name (from /rename command) ---
+# Session files in ~/.claude/sessions/ are named by the Claude process PID.
+# Walk up the process tree to find which PID matches a session file.
 SESSION_NAME=""
-CC_SESSION_ID=$(echo "$INPUT" | jq -r '.session_id // empty' 2>/dev/null || echo "")
-if [ -n "$CC_SESSION_ID" ]; then
-    for f in "$HOME/.claude/sessions"/*.json; do
-        [ -f "$f" ] || continue
-        FILE_SID=$(jq -r '.sessionId // empty' "$f" 2>/dev/null || echo "")
-        if [ "$FILE_SID" = "$CC_SESSION_ID" ]; then
-            SESSION_NAME=$(jq -r '.name // empty' "$f" 2>/dev/null || echo "")
-            break
-        fi
-    done
-fi
+_pid=$$
+while [ "$_pid" -gt 1 ] 2>/dev/null; do
+    if [ -f "$HOME/.claude/sessions/${_pid}.json" ]; then
+        SESSION_NAME=$(jq -r '.name // empty' "$HOME/.claude/sessions/${_pid}.json" 2>/dev/null || echo "")
+        break
+    fi
+    _pid=$(ps -o ppid= -p "$_pid" 2>/dev/null | tr -d ' ')
+    [ -z "$_pid" ] && break
+done
 
 # --- Skip notification if user is already viewing this session ---
 if [ -n "${TMUX:-}" ] && [ -n "${TMUX_PANE:-}" ]; then
@@ -231,14 +231,8 @@ if [ "$NOTIFY_TYPE" = "needs_input" ] && [ -n "${TMUX_PANE:-}" ]; then
 fi
 
 # --- Notification type ---
-if [ -n "$SESSION_NAME" ]; then
-    CC_LABEL="Claude Code [$SESSION_NAME]"
-else
-    CC_LABEL="Claude Code"
-fi
-
 if [ "$NOTIFY_TYPE" = "needs_input" ]; then
-    TITLE="${CC_LABEL} — Needs Input"
+    TITLE="Claude Code — Needs Input"
     if [ -n "$TOOL_DISPLAY" ]; then
         BODY="$TOOL_DISPLAY"
     else
@@ -246,7 +240,7 @@ if [ "$NOTIFY_TYPE" = "needs_input" ]; then
     fi
     SOUND="Ping"
 else
-    TITLE="${CC_LABEL} — Done"
+    TITLE="Claude Code — Done"
     BODY="Claude has finished and is awaiting further instructions"
     SOUND="Glass"
 fi
@@ -298,6 +292,15 @@ elif [ -n "$TMUX_INFO" ]; then
     SUBTITLE="${TMUX_INFO}"
 elif [ -n "$PROJECT" ]; then
     SUBTITLE="${PROJECT}"
+fi
+
+# Append session name to subtitle
+if [ -n "$SESSION_NAME" ]; then
+    if [ -n "$SUBTITLE" ]; then
+        SUBTITLE="${SUBTITLE} · ${SESSION_NAME}"
+    else
+        SUBTITLE="${SESSION_NAME}"
+    fi
 fi
 
 # --- Send notification ---
